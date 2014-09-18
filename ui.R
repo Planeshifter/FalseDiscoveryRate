@@ -36,7 +36,7 @@ shinyUI(fluidPage(
     column(6,  # Show a plot of the generated distribution
              tabsetPanel(
                tabPanel("Comparisons"),
-               tabPanel("Summary", plotOutput("powerPlot")),
+               tabPanel("Summary", plotOutput("powerPlot", height=800)),
                tabPanel("Data",
                         textOutput("activeReplicationText"),
                         dataTableOutput("DataTable"))
