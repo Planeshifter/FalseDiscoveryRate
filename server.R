@@ -1,8 +1,12 @@
 library(shiny)
 library(ggplot2)
 library(reshape2)
+library(grid)
+library(gridExtra)
+library(scales)
 
 source("fdr-sim-1.R")
+source("summarySE.R")
 
 shinyServer(function(input, output) {
   
@@ -17,6 +21,7 @@ shinyServer(function(input, output) {
   })
   
   output$activeReplicationText <- renderText({
+    generate_data()
     paste(c("Data of the ", input$active_run, "run:"), sep = " ")
   })
   
@@ -29,8 +34,30 @@ shinyServer(function(input, output) {
     
     p = ggplot(data = powersDF_melt, aes(x=variable, y=value, fill=variable)) + geom_boxplot() + 
       labs(x="Procedure", y="Power", title="Power of Tests")
-    print(p)
-  })
+    
+    
+    pcer = lapply(data$expResults, function(x){ x$table[2, ]})
+    pcerDF = as.data.frame(do.call("rbind", pcer))
+    pcerDF$run = 1:input$reps
+    pcerDF_melt = melt(pcerDF, id.vars = "run")
+    pcerDF_summary = summarySE(pcerDF_melt, "value", "variable")
+    
+    q = ggplot(data = pcerDF_summary, aes(x=variable, y=value, colour=variable)) + 
+      geom_errorbar(aes(ymin=value-ci, ymax=value+ci), width=.1) +
+      geom_point()
+    
+    fwer = lapply(data$expResults, function(x){ x$table[3, ]})
+    fwerDF = as.data.frame(do.call("rbind", fwer))
+    fwerDF$run = 1:input$reps
+    fwerDF_melt = melt(fwerDF, id.vars = "run")
+    fwerDF_summary = summarySE(fwerDF_melt, "value", "variable")
+    
+    r = ggplot(data = fwerDF_summary, aes(x=variable, y=value, colour=variable)) + 
+      geom_errorbar(aes(ymin=value-ci, ymax=value+ci), width=.1) +
+      geom_point()
+    
+    print(grid.arrange(p,q,r,nrow=5))
+  },  height = 1600, width = 800)
   
   output$compTable <- renderTable({
     generate_data()

@@ -34,7 +34,6 @@ shinyUI(fluidPage(
                    value=5)
     ),
     column(6,  # Show a plot of the generated distribution
-           mainPanel(
              tabsetPanel(
                tabPanel("Comparisons"),
                tabPanel("Summary", plotOutput("powerPlot")),
@@ -42,7 +41,7 @@ shinyUI(fluidPage(
                         textOutput("activeReplicationText"),
                         dataTableOutput("DataTable"))
              )
-           )),
+           ),
     column(3,   uiOutput("replicationSelector"),
                 tableOutput("compTable"))
   )
