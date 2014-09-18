@@ -1,7 +1,9 @@
 library(shiny)
 library(ggplot2)
+theme_set(new = theme_grey(base_size = 16))
 library(reshape2)
 library(grid)
+library(plyr)
 library(gridExtra)
 library(scales)
 
@@ -44,7 +46,7 @@ shinyServer(function(input, output) {
     
     q = ggplot(data = pcerDF_summary, aes(x=variable, y=value, colour=variable)) + 
       geom_errorbar(aes(ymin=value-ci, ymax=value+ci), width=.1) +
-      geom_point()
+      geom_point()+labs(x="Procedure", y="Error Rate", title="Pairwise-comparison error rate (PCER)")
     
     fwer = lapply(data$expResults, function(x){ x$table[3, ]})
     fwerDF = as.data.frame(do.call("rbind", fwer))
@@ -54,10 +56,20 @@ shinyServer(function(input, output) {
     
     r = ggplot(data = fwerDF_summary, aes(x=variable, y=value, colour=variable)) + 
       geom_errorbar(aes(ymin=value-ci, ymax=value+ci), width=.1) +
-      geom_point()
+      geom_point()+labs(x="Procedure", y="Error Rate", title="Family-wise error rate (FWER)")
     
-    print(grid.arrange(p,q,r,nrow=5))
-  },  height = 1600, width = 800)
+    fdr = lapply(data$expResults, function(x){ x$table[4, ]})
+    fdrDF = as.data.frame(do.call("rbind", fdr))
+    fdrDF$run = 1:input$reps
+    fdrDF_melt = melt(fdrDF, id.vars = "run")
+    fdrDF_summary = summarySE(fdrDF_melt, "value", "variable")
+    
+    s = ggplot(data = fdrDF_summary, aes(x=variable, y=value, colour=variable)) + 
+      geom_errorbar(aes(ymin=value-ci, ymax=value+ci), width=.1) +
+      geom_point()+labs(x="Procedure", y="Error Rate", title="False discovery rate (FDR)")
+    
+    print(grid.arrange(p,q,r,s, nrow=2, ncol=2))
+  },  height = 400, width = 1000)
   
   output$compTable <- renderTable({
     generate_data()
