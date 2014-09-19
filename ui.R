@@ -19,30 +19,35 @@ shinyUI(fluidPage(
       sliderInput("mm",
                   "Number of hypotheses:",
                   min = 1,
-                  max = 50,
-                  value = 16),
+                  max = 100,
+                  value = 40),
       sliderInput("reps", 
                   "Number of replications",
                   min = 1,
-                  max = 10000, value=600, step=100),
+                  max = 5000, value=500, step=50),
       sliderInput("pp", 
                   "Percentage of true hypotheses",
                   min = 0.1,
                   max = 0.9, value=0.5, step=0.05),
       numericInput("LL",
                    "Maximal true effect",
-                   value=5)
+                   value=5),
+      radioButtons("FUN",label = "Non-zero expectation groups", c("decreasing",
+                                                                  "equal",
+                                                                  "increasing"), selected="equal")
     ),
     column(6,  # Show a plot of the generated distribution
              tabsetPanel(
-               tabPanel("Comparisons"),
-               tabPanel("Summary", plotOutput("powerPlot", height=800)),
+               tabPanel("Plots", plotOutput("powerPlot", height=1200)),
                tabPanel("Data",
                         textOutput("activeReplicationText"),
                         dataTableOutput("DataTable"))
              )
            ),
-    column(3,   uiOutput("replicationSelector"),
+    column(3,   h4("Averages"),
+                tableOutput("compTableAll"),
+                h4("Data of Single Repitition"),
+                uiOutput("replicationSelector"),
                 tableOutput("compTable"))
   )
 

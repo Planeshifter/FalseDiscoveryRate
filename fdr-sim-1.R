@@ -6,9 +6,25 @@
 ##  Just a flat function for generating levels for false hypotheses
 f.flat <- function(mm,pp,LL){
     total <- floor(mm*pp)
-    mus <- rep(c(LL,LL/2,LL/4,3*LL/4),ceiling(total/4))
+    mus <- rep(c(LL, LL/4, LL/2, 3*LL/4),ceiling(total/4))
     zeros <- rep(0,mm - total)
     return(c(zeros,mus[1:total]))
+}
+
+f.increasing <- function(mm, pp, LL){
+  total <- floor(mm*pp)
+  groupVals = c(LL/4, LL/2, 3*LL/4, LL)
+  mus <- unlist(lapply(1:4, function(i) { rep(groupVals[i], times= i * ceiling(total/10)) }))
+  zeros <- rep(0, mm - total)
+  return(c(zeros, mus[1:total]))
+}
+
+f.decreasing <- function(mm, pp, LL){
+  total <- floor(mm*pp)
+  groupVals = c(LL/4, LL/2, 3*LL/4, LL)
+  mus <- unlist(lapply(1:4, function(i) { rep(groupVals[i], times= (5 - i) * ceiling(total/10)) }))
+  zeros <- rep(0, mm - total)
+  return(c(zeros, mus[1:total]))
 }
 
 ##  Generating some z-values given parameter specifications
